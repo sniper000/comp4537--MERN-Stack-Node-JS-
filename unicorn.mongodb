@@ -1,14 +1,29 @@
 use("test")
 
-db.unicorns.find(
-    {
-        //selection
-        // name: "Roooooodles",
-        "gender": "m"
-    },{
-        //projection
-        name: 1,
-        gender: 1,
-        _id: 0
-    }
-)
+// db.unicorns.find(
+//     {
+//         //selection
+//         // name: "Roooooodles",
+//         "gender": "m"
+//     },{
+//         //projection
+//         name: 1,
+//         gender: 1,
+//         _id: 0
+//     }
+// )
+
+// This returns any unicorn who loves 'apple' or 'carrot'.
+
+db.unicorns.find({
+    $or: [
+        {
+            loves: {$in : ["apple"]}
+        },
+        {
+            loves: {$in : ["carrot"]}
+        }
+    ]
+})
+
+
