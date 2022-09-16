@@ -2,7 +2,11 @@ use("test")
 
 db.unicorns.find(
     {
+        //selection
         name: "Roooooodles",
         gender: "m"
+    },{
+        //projection
+        name: 1
     }
 )
