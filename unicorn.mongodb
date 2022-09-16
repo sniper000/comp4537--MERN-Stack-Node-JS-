@@ -1,3 +1,8 @@
 use("test")
 
-db.unicorns.find()
+db.unicorns.find(
+    {
+        name: "Roooooodles",
+        gender: "m"
+    }
+)
