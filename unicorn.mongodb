@@ -3,10 +3,12 @@ use("test")
 db.unicorns.find(
     {
         //selection
-        name: "Roooooodles",
-        gender: "m"
+        // name: "Roooooodles",
+        "gender": "m"
     },{
         //projection
-        name: 1
+        name: 1,
+        gender: 1,
+        _id: 0
     }
 )
