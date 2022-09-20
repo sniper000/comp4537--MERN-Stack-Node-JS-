@@ -15,15 +15,27 @@ use("test")
 
 // This returns any unicorn who loves 'apple' or 'carrot'.
 
-db.unicorns.find({
-    $or: [
-        {
-            loves: {$in : ["apple"]}
-        },
-        {
-            loves: {$in : ["carrot"]}
-        }
-    ]
-})
+// db.unicorns.find({
+//     $or: [
+//         {
+//             loves: {$in : ["apple"]}
+//         },
+//         {
+//             loves: {$in : ["carrot"]}
+//         }
+//     ]
+// })
 
+// return all female unicorns which either love apples or weigh less than 500 pounds.
+
+db.unicorns.find({
+    $and: [{
+        gender: "f"
+    },{
+        $or : [
+            {loves: {$in: ["apple"]}},
+            {weight: {$lt: 500}}
+        ]
+    }]
+})
 
