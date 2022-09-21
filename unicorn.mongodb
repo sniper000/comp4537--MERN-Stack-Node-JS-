@@ -28,14 +28,37 @@ use("test")
 
 // return all female unicorns which either love apples or weigh less than 500 pounds.
 
-db.unicorns.find({
-    $and: [{
-        gender: "f"
-    },{
-        $or : [
-            {loves: {$in: ["apple"]}},
-            {weight: {$lt: 500}}
-        ]
-    }]
-})
+// db.unicorns.find({
+//     $and: [{
+//         gender: "f"
+//     },{
+//         $or : [
+//             {loves: {$in: ["apple"]}},
+//             {weight: {$lt: 500}}
+//         ]
+//     }]
+// })
+
+
+// db.unicorns.find()
+
+//updating Roooooodles' weight
+
+// db.unicorns.update(
+//     {name: 'Roooooodles'},
+// 	{$set: {weight: 590}}
+//     )
+
+// using the inc operator for update
+// db.unicorns.update({name: 'Pilot'},
+// 	{$inc: {vampires: -2}})
+
+// using the push operator for update
+// db.unicorns.update({name: 'Aurora'},
+// 	{$push: {loves: 'sugar'}})
+
+// upsert
+// db.hits.update({page: 'unicorns'},
+// 	{$inc: {hits: 1}}, {upsert:true});
+// db.hits.find();
 
