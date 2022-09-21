@@ -62,3 +62,14 @@ use("test")
 // 	{$inc: {hits: 1}}, {upsert:true});
 // db.hits.find();
 
+// multiple updates
+// db.unicorns.update({},
+// 	{$set: {vaccinated: true }},
+// 	{multi:true});
+// db.unicorns.find({vaccinated: true});
+
+// selection with name
+db.unicorns.find({}, {name: 1});
+
+// selection without id
+db.unicorns.find({}, {name:1, _id: 0});
