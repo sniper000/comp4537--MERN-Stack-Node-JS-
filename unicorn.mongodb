@@ -69,7 +69,25 @@ use("test")
 // db.unicorns.find({vaccinated: true});
 
 // selection with name
-db.unicorns.find({}, {name: 1});
+// db.unicorns.find({}, {name: 1});
 
 // selection without id
-db.unicorns.find({}, {name:1, _id: 0});
+// db.unicorns.find({}, {name:1, _id: 0});
+
+// selection by id
+// db.unicorns.find({_id: ObjectId("632417554b8df5b0deecba7e")}, {});
+
+// Ordering
+
+//heaviest unicorns first
+// db.unicorns.find().sort({weight: -1})
+
+//by unicorn name then vampire kills:
+// db.unicorns.find().sort({name: 1,
+// 	vampires: -1})
+
+// Paging
+db.unicorns.find()
+	.sort({weight: -1})
+	.limit(2)
+	.skip(1)
