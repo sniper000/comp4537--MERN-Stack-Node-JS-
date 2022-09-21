@@ -40,7 +40,7 @@ use("test")
 // })
 
 
-// db.unicorns.find()
+db.unicorns.find()
 
 //updating Roooooodles' weight
 
@@ -87,7 +87,20 @@ use("test")
 // 	vampires: -1})
 
 // Paging
-db.unicorns.find()
-	.sort({weight: -1})
-	.limit(2)
-	.skip(1)
+// db.unicorns.find()
+// 	.sort({weight: -1})
+// 	.limit(2)
+// 	.skip(1)
+
+// Count
+
+// db.unicorns.count({vampires: {$gt: 50}})
+
+// db.unicorns.find({vampires: {$gt: 50}})
+// 	.count()
+
+// Find Date
+
+db.unicorns.find({
+    "dob": ISODate("1992-03-13T15:47:00Z")
+})
