@@ -26,6 +26,7 @@ use("test")
 //     ]
 // })
 
+
 // return all female unicorns which either love apples or weigh less than 500 pounds.
 
 // db.unicorns.find({
@@ -40,7 +41,7 @@ use("test")
 // })
 
 
-db.unicorns.find()
+// db.unicorns.find()
 
 //updating Roooooodles' weight
 
@@ -101,6 +102,6 @@ db.unicorns.find()
 
 // Find Date
 
-db.unicorns.find({
-    "dob": ISODate("1992-03-13T15:47:00Z")
-})
+// db.unicorns.find({
+//     "dob": ISODate("1992-03-13T15:47:00Z")
+// })
