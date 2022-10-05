@@ -7,6 +7,7 @@ const port = 5500
 app.listen(process.env.PORT || 5500, async () => {
     try {
         await mongoose.connect('mongodb+srv://benjaminlui:199519@cluster0.afoeuwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
+        // await mongoose.connect('mongodb://localhost:27017/test');
     } catch (error) {
         console.log('db error');
     }
@@ -21,6 +22,7 @@ const unicornSchema = new Schema({
     "weight": Number,
     "loves": [String],
     "gender": {
+        type: String,
         enum: ["f", "m"]
     },
     "vampires": Number,
@@ -101,7 +103,7 @@ app.patch('/api/v2/unicorn/:id', (req, res) => {
     //   .catch((err) => { console.log(err); })
     // console.log(req.body);
     const { _id, ...rest } = req.body;
-    unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, rest, function (err, res) {
+    unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, {$set: { ...rest }}, { runValidators: true }, function (err, res) {
         // Updated at most one doc, `res.nModified` contains the number
         // of docs that MongoDB updated
         if (err) console.log(err)
@@ -126,3 +128,46 @@ app.delete('/api/v2/unicorn/:id', (req, res) => {
 
     res.send("Deleted successfully?")
 })
+
+
+
+app.patch('/api/v2/unicornNewLovesFood/:id/', (req, res) => {
+    unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, req.body, function (err, res) {
+      // Updated at most one doc, `res.nModified` contains the number
+      // of docs that MongoDB updated
+      if (err) console.log(err)
+      console.log(res)
+    });
+  
+    res.send("Updated successfully!")
+  })
+  
+  app.patch('/api/v2/unicornAddLovesFood/:id/', (req, res) => {
+    unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, {
+      $push: {
+        loves: req.body.newLoves
+      }
+    }, function (err, res) {
+      // Updated at most one doc, `res.nModified` contains the number
+      // of docs that MongoDB updated
+      if (err) console.log(err)
+      console.log(res)
+    });
+    res.send("Updated successfully!")
+  })
+  
+  app.patch('/api/v2/unicornRemoveLovesFood/:id/:item', (req, res) => {
+    unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, {
+      $pull: {
+        loves: req.params.item
+      }
+    }, function (err, res) {
+      // Updated at most one doc, `res.nModified` contains the number
+      // of docs that MongoDB updated
+      if (err) console.log(err)
+      console.log(res)
+    });
+    res.send("Updated successfully!")
+  })
+  
+  
