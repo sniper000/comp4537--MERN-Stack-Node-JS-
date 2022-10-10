@@ -7,14 +7,14 @@ const app = express()
 const port = 5500
 
 
-app.listen(port, async () => {
+app.listen(process.env.PORT || port, async () => {
   // 1 - establish the connection the db
   // 2 - create the schema
   // 3 - create the model
   // 4 - populate the db with the pokemons
   try {
-    await mongoose.connect('mongodb://localhost:27017/test')
-    mongoose.connection.db.dropDatabase();
+    await mongoose.connect('mongodb+srv://benjaminlui:199519@cluster0.afoeuwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
+    // mongoose.connection.db.dropDatabase();
   } catch (error) {
     console.log('db error');
   }
@@ -32,7 +32,7 @@ const pokemonSchema = new Schema({
     "Speed Attack": Number,
     "Speed Defense": Number
   },
-  "id": Number,
+  "id": {type: Number, unique: true},
   "name": {
     "english": String,
     "japanese": String,
@@ -63,8 +63,6 @@ https.get("https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex
 
 // app.get('/api/v1/pokemons?count=2&after=10')     // - get all the pokemons after the 10th. List only Two.
 
-//use limit and skip
-
 app.get('/api/v1/pokemons', (req, res) => {
   let count = req.query.count;
   let after = req.query.after;
@@ -84,7 +82,7 @@ app.get('/api/v1/pokemons', (req, res) => {
 app.use(express.json())
 app.post('/api/v1/pokemon', (req, res) => {
   // - create a new pokemon
-  pokemonModel.create(req.body, function (err) {
+  pokemonModel.create(req.body, { unique: true, runValidators: true }, function (err) {
     if (err) console.log(err);
     // saved!
   });
@@ -100,8 +98,9 @@ app.get('/api/v1/pokemon/:id', (req, res) => {
       console.log(doc)
       if (doc.length === 0) {
         res.json({ errMsg: "Pokemon not found"})
+      } else {
+        res.json(doc)
       }
-      res.json(doc)
     })
     .catch(err => {
       console.error(err)
@@ -162,3 +161,7 @@ app.delete('/api/v1/pokemon/:id', (req, res) => {
 
   res.send("Deleted successfully?")
 })
+
+app.get("*", (req, res) => {
+  res.send("Improper route. Check API docs plz.");
+});
