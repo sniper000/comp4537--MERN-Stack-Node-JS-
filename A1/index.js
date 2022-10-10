@@ -65,17 +65,19 @@ https.get("https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex
 
 //use limit and skip
 
-app.get('/api/v1/pokemons?count=2&after=10', (req, res) => {
-  console.log(req.params.id);
-  pokemonModel.find({ id: `${req.params.id}` })
-    .then(doc => {
-      console.log(doc)
-      res.json(doc)
+app.get('/api/v1/pokemons', (req, res) => {
+  let count = req.query.count;
+  let after = req.query.after;
+  pokemonModel.find({}).sort({id: 1}).limit(count).skip(after)
+    .then(docs => {
+      console.log(docs)
+      res.json(docs)
     })
     .catch(err => {
       console.error(err)
       res.json({ msg: "db reading .. err.  Check with server devs" })
     })
+  // res.json(unicornsJSON)
 })
 
 // app.post('/api/v1/pokemon')                      // - create a new pokemon
@@ -92,9 +94,13 @@ app.post('/api/v1/pokemon', (req, res) => {
 // app.get('/api/v1/pokemon/:id')                   // - get a pokemon
 app.get('/api/v1/pokemon/:id', (req, res) => {
   console.log(req.params.id);
+  if ( Number.isNaN(req.params.id) ) { return res.json( { errMsg: "Cast Error: pass pokemon id between 1 and 811" } ) };
   pokemonModel.find({ id: `${req.params.id}` })
     .then(doc => {
       console.log(doc)
+      if (doc.length === 0) {
+        res.json({ errMsg: "Pokemon not found"})
+      }
       res.json(doc)
     })
     .catch(err => {
@@ -126,7 +132,7 @@ app.get('/api/v1/pokemonImage/:id', (req, res) => {
 // app.put('/api/v1/pokemon/:id')                   // - upsert a whole pokemon document
 app.put('/api/v1/pokemon/:id', (req, res) => {
   const { _id, ...rest } = req.body;
-  pokemonModel.updateOne({ id: req.params.id }, rest, { upsert: true }, function (err, res) {
+  pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { upsert: true, runValidators: true }, function (err, res) {
     if (err) console.log(err)
     console.log(res)
   });
@@ -138,7 +144,7 @@ app.patch('/api/v1/pokemon/:id')                 // - patch a pokemon document o
 app.patch('/api/v1/pokemon/:id', (req, res) => {
   // - update a pokemon
   const { _id, ...rest } = req.body;
-  pokemonModel.updateOne({ id: req.params.id }, rest, function (err, res) {
+  pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true }, function (err, res) {
     if (err) console.log(err)
     console.log(res)
   });
