@@ -65,7 +65,7 @@ https.get("https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex
 
 app.get('/api/v1/pokemons', (req, res) => {
   let count = req.query.count;
-  let after = req.query.after;
+  var after = req.query.after;
   pokemonModel.find({}).sort({id: 1}).limit(count).skip(after)
     .then(docs => {
       console.log(docs)
@@ -86,7 +86,8 @@ app.post('/api/v1/pokemon', (req, res) => {
     if (err) console.log(err);
     // saved!
   });
-  res.json(req.body)
+  console.log(req.body)
+  res.json({ msg: "Added Successfully" })
 })
 
 // app.get('/api/v1/pokemon/:id')                   // - get a pokemon
