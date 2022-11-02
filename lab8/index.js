@@ -4,6 +4,7 @@ const { connectDB } = require("./connectDB.js")
 const { populatePokemons } = require("./populatePokemons.js")
 const { getTypes } = require("./getTypes.js")
 const { handleErr } = require("./errorHandler.js")
+const { asyncWrapper } = require("./asyncWrapper.js")
 const app = express()
 const port = 5500
 var pokeModel = null;
@@ -37,6 +38,13 @@ class PokemonBadRequestMissingID extends PokemonBadRequest {
   }
 }
 
+class PokemonBadRequestPostFailedToAddPokemon extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = 'PokemonBadRequestPostFailedToAddPokemon';
+  }
+}
+
 class PokemonBadRequestSpecialValuesReturnEmptyArray extends PokemonBadRequest {
   constructor(message) {
     super(message);
@@ -66,7 +74,7 @@ class PokemonNotFoundError extends PokemonBadRequest {
 }
 
 
-app.get('/api/v1/pokemons', async (req, res, next) => {
+app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   console.log("GET /api/v1/pokemons");
   if (!req.query["count"])
     req.query["count"] = 10
@@ -86,17 +94,17 @@ app.get('/api/v1/pokemons', async (req, res, next) => {
     if (docs.length == 0)
       throw new PokemonNotFoundError('Pokemon not found in DB')
     res.json(docs)
-  } catch (err) { 
+  } catch (err) {
     next(err);
     // res.json(handleErr(err)) 
   }
-})
+}))
 
-app.get('/api/v1/pokemon/',  ()=>{
+app.get('/api/v1/pokemon/', () => {
   throw new PokemonBadRequestMissingID('id is required');
 })
 
-app.get('/api/v1/pokemon/:id', async (req, res, next) => {
+app.get('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   try {
     // const { id } = req.params
     const { id } = req.params
@@ -107,22 +115,29 @@ app.get('/api/v1/pokemon/:id', async (req, res, next) => {
       throw new PokemonNotFoundError('Pokemon not found in DB')
     if (docs.length != 0) res.json(docs)
     else res.json({ errMsg: "Pokemon not found" })
-  } catch (err) { 
+  } catch (err) {
     next(err);
     // res.json(handleErr(err))
-   }
-})
+  }
+}))
+
 app.use(express.json())
 
-app.post('/api/v1/pokemon/', async (req, res) => {
+app.post('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
   try {
     const pokeDoc = await pokeModel.create(req.body)
     // console.log(pokeDoc);
-    res.json({
-      msg: "Added Successfully"
-    })
-  } catch (err) { res.json(handleErr(err)) }
-})
+    if (pokeDoc != null || pokeDoc.length > 0) {
+      res.json({
+        msg: "Added Successfully"
+      })
+    } else {
+      throw new PokemonBadRequestPostFailedToAddPokemon('Pokemon failed to be added');
+    }
+  } catch (err) {
+    next(err);
+  }
+}))
 
 app.delete('/api/v1/pokemon/:id', async (req, res, next) => {
   try {
@@ -134,16 +149,16 @@ app.delete('/api/v1/pokemon/:id', async (req, res, next) => {
     else {
       throw new PokemonNotFoundError('Pokemon not found in DB');
     }
-      // res.json({
-      //   errMsg: "Pokemon not found"
-      // })
-  } catch (err) { 
-      next(err);
+    // res.json({
+    //   errMsg: "Pokemon not found"
+    // })
+  } catch (err) {
+    next(err);
     // res.json(handleErr(err)) 
   }
 })
 
-app.put('/api/v1/pokemon/:id', async (req, res) => {
+app.put('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   try {
     const selection = { id: req.params.id }
     const update = req.body
@@ -154,20 +169,22 @@ app.put('/api/v1/pokemon/:id', async (req, res) => {
     }
     const doc = await pokeModel.findOneAndUpdate(selection, update, options)
     // console.log(docs);
+    if (docs.length == 0)
+      throw new PokemonNotFoundError('Pokemon not found in DB')
     if (doc) {
       res.json({
         msg: "Updated Successfully",
         pokeInfo: doc
       })
     } else {
-      res.json({
-        msg: "Not found",
-      })
+      throw new PokemonNotFoundError('Pokemon not found in DB');
     }
-  } catch (err) { res.json(handleErr(err)) }
-})
+  } catch (err) {
+    next(err);
+  }
+}))
 
-app.patch('/api/v1/pokemon/:id', async (req, res) => {
+app.patch('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   try {
     const selection = { id: req.params.id }
     const update = req.body
@@ -182,12 +199,12 @@ app.patch('/api/v1/pokemon/:id', async (req, res) => {
         pokeInfo: doc
       })
     } else {
-      res.json({
-        msg: "Not found",
-      })
+      throw new PokemonNotFoundError('Pokemon ont found in DB');
     }
-  } catch (err) { res.json(handleErr(err)) }
-})
+  } catch (err) {
+    next(err);
+  }
+}))
 
 // app.get("*", (req, res) => {
 //   res.json({
@@ -199,9 +216,9 @@ app.use((err, req, res, next) => {
     res.status(400).send(err.message);
   } else if (err instanceof PokemonBadRequestSpecialValuesReturnEmptyArray) {
     res.status(400).send(err.message);
-  }else if (err instanceof PokemonNotFoundError) {
+  } else if (err instanceof PokemonNotFoundError) {
     res.status(400).send(err.message);
-  }else {
+  } else {
     res.status(500).send(err.message);
   }
 })
