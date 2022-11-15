@@ -5,7 +5,7 @@ const { populatePokemons } = require("./populatePokemons.js")
 const { getTypes } = require("./getTypes.js")
 const { handleErr } = require("./errorHandler.js")
 const { asyncWrapper } = require("./asyncWrapper.js")
-const {  pokeUser  } = require("./pokeUser.js")
+const { pokeUser } = require("./pokeUser.js")
 const cors = require("cors")
 const app = express()
 const dotenv = require("dotenv")
@@ -111,7 +111,7 @@ app.post('/login', asyncWrapper(async (req, res, next) => {
     // const selection = { id: req.params.id }
     const selection = { name: username }
     // const update = req.body
-    const update = { jwt: token}
+    const update = { jwt: token }
     const options = {
       new: true,
       runValidators: true
@@ -151,27 +151,43 @@ app.use(auth) // Boom! All routes below this line are protected
 
 app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   console.log("GET /api/v1/pokemons");
-  if (!req.query["count"])
-    req.query["count"] = 10
-  if (!req.query["after"])
-    req.query["after"] = 0
+
   try {
-    const docs = await pokeModel.find({})
-      .sort({ "id": 1 })
-      .skip(req.query["after"])
-      .limit(req.query["count"])
-    if (docs == null)
-      throw new PokemonBadRequestSpecialValueReturnNull('Error, request return null')
-    if (docs == [])
-      throw new PokemonBadRequestSpecialValuesReturnEmptyArray('Error, request return empty array')
-    if (docs == "")
-      throw new PokemonBadRequestSpecialValueReturnEmptyStrings('Error, request return empty strings')
-    if (docs.length == 0)
-      throw new PokemonNotFoundError('Pokemon not found in DB')
-    res.json(docs)
+    if (req.query["apikey"].length > 1) {
+      const apikey = req.query["apikey"]
+      console.log(apikey)
+      const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: apikey })
+      console.log(userStoredJWTTokenFromDB)
+      if (userStoredJWTTokenFromDB.jwt === req.query["apikey"]) {
+        if (!req.query["count"])
+          req.query["count"] = 10
+        if (!req.query["after"])
+          req.query["after"] = 0
+        try {
+          const docs = await pokeModel.find({})
+            .sort({ "id": 1 })
+            .skip(req.query["after"])
+            .limit(req.query["count"])
+          if (docs == null)
+            throw new PokemonBadRequestSpecialValueReturnNull('Error, request return null')
+          if (docs == [])
+            throw new PokemonBadRequestSpecialValuesReturnEmptyArray('Error, request return empty array')
+          if (docs == "")
+            throw new PokemonBadRequestSpecialValueReturnEmptyStrings('Error, request return empty strings')
+          if (docs.length == 0)
+            throw new PokemonNotFoundError('Pokemon not found in DB')
+          res.json(docs)
+        } catch (err) {
+          next(err);
+        }
+      } else {
+        throw new PokemonNotFoundError('JWT token does not match JWT token in DB')
+      }
+    } else {
+      throw new PokemonNotFoundError('Missing JWT Token from user as API Key')
+    }
   } catch (err) {
     next(err);
-    // res.json(handleErr(err)) 
   }
 }))
 
