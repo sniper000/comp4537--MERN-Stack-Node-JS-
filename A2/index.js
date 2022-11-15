@@ -106,6 +106,7 @@ app.post('/login', asyncWrapper(async (req, res, next) => {
   // Create and assign a token
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
   res.header('auth-token', token)
+  res.cookie('jwtToken', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true }); // maxAge: 2 hours
 
   try {
     // const selection = { id: req.params.id }
@@ -123,13 +124,42 @@ app.post('/login', asyncWrapper(async (req, res, next) => {
         userInfo: userStoreJWTToken
       })
     } else {
-      throw new PokemonNotFoundError('Pokemon not found in DB');
+      throw new PokemonNotFoundError('User not found in DB');
     }
   } catch (err) {
     next(err);
   }
 
   // res.send(userStoreJWTToken)
+}))
+
+app.post('/logout', asyncWrapper(async (req, res, next) => {
+  const { username, password } = req.body
+  const user = await userModel.findOne({ username })
+  if (!user) {
+    throw new PokemonBadRequest("User not found")
+  }
+  const isPasswordCorrect = await bcrypt.compare(password, user.password)
+  if (!isPasswordCorrect) {
+    throw new PokemonBadRequest("Password is incorrect")
+  }
+
+  // Clear the JWT token off the cookie
+  res.clearCookie("jwToken")
+
+  try {
+    const userRemoveJWTTokenAndLogout = await userModel.updateOne({ username }, { $unset: { jwt: 1 } })
+    if (userRemoveJWTTokenAndLogout) {
+      res.json({
+        msg: "User logged out successfully",
+        userInfo: userRemoveJWTTokenAndLogout
+      })
+    } else {
+      throw new PokemonNotFoundError('User JWT token not found in DB');
+    }
+  } catch (err) {
+    next(err);
+  }
 }))
 
 const auth = (req, res, next) => {
@@ -153,12 +183,12 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   console.log("GET /api/v1/pokemons");
 
   try {
-    if (req.query["apikey"].length > 1) {
-      const apikey = req.query["apikey"]
-      console.log(apikey)
-      const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: apikey })
-      console.log(userStoredJWTTokenFromDB)
-      if (userStoredJWTTokenFromDB.jwt === req.query["apikey"]) {
+    if (req.query["appid"].length > 1) {
+      const appid = req.query["appid"]
+      // console.log(appid)
+      const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
+      // console.log(userStoredJWTTokenFromDB)
+      if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
         if (!req.query["count"])
           req.query["count"] = 10
         if (!req.query["after"])
@@ -191,24 +221,42 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   }
 }))
 
-app.get('/api/v1/pokemon/', () => {
-  throw new PokemonBadRequestMissingID('id is required');
-})
+app.get('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
+  console.log("GET /api/v1/pokemon/id");
 
-app.get('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   try {
-    // const { id } = req.params
-    const { id } = req.params
-    if (id == undefined)
-      throw new PokemonBadRequestMissingID('id is required');
-    const docs = await pokeModel.find({ "id": id })
-    if (docs.length == 0)
-      throw new PokemonNotFoundError('Pokemon not found in DB')
-    if (docs.length != 0) res.json(docs)
-    else res.json({ errMsg: "Pokemon not found" })
+    if (req.query["appid"].length > 1) {
+      if (req.query["id"].length <= 0) {
+        throw new PokemonBadRequestMissingID('id is required');
+      }
+      const appid = req.query["appid"]
+      // console.log(appid)
+      const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
+      // console.log(userStoredJWTTokenFromDB)
+      if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
+        try {
+          // const { id } = req.params
+          // const { id } = req.params
+          const id = req.query["id"]
+          if (id == undefined)
+            throw new PokemonBadRequestMissingID('id is required');
+          const docs = await pokeModel.find({ "id": id })
+          if (docs.length == 0)
+            throw new PokemonNotFoundError('Pokemon not found in DB')
+          if (docs.length != 0) res.json(docs)
+          else res.json({ errMsg: "Pokemon not found" })
+        } catch (err) {
+          next(err);
+          // res.json(handleErr(err))
+        }
+      } else {
+        throw new PokemonNotFoundError('JWT token does not match JWT token in DB')
+      }
+    } else {
+      throw new PokemonNotFoundError('Missing JWT Token from user as API Key')
+    }
   } catch (err) {
     next(err);
-    // res.json(handleErr(err))
   }
 }))
 
@@ -248,7 +296,7 @@ app.post('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
   }
 }))
 
-app.delete('/api/v1/pokemon/:id', async (req, res, next) => {
+app.delete('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   try {
     const docs = await pokeModel.findOneAndRemove({ id: req.params.id })
     if (docs)
@@ -265,7 +313,7 @@ app.delete('/api/v1/pokemon/:id', async (req, res, next) => {
     next(err);
     // res.json(handleErr(err)) 
   }
-})
+}))
 
 app.put('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   try {
