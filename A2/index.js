@@ -92,7 +92,7 @@ app.post('/register', asyncWrapper(async (req, res) => {
 }))
 
 const jwt = require("jsonwebtoken")
-app.post('/login', asyncWrapper(async (req, res) => {
+app.post('/login', asyncWrapper(async (req, res, next) => {
   const { username, password } = req.body
   const user = await userModel.findOne({ username })
   if (!user) {
@@ -107,7 +107,29 @@ app.post('/login', asyncWrapper(async (req, res) => {
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
   res.header('auth-token', token)
 
-  res.send(user)
+  try {
+    // const selection = { id: req.params.id }
+    const selection = { name: username }
+    // const update = req.body
+    const update = { jwt: token}
+    const options = {
+      new: true,
+      runValidators: true
+    }
+    const userStoreJWTToken = await userModel.findOneAndUpdate(selection, update, options)
+    if (userStoreJWTToken) {
+      res.json({
+        msg: "Updated Successfully",
+        userInfo: userStoreJWTToken
+      })
+    } else {
+      throw new PokemonNotFoundError('Pokemon not found in DB');
+    }
+  } catch (err) {
+    next(err);
+  }
+
+  // res.send(userStoreJWTToken)
 }))
 
 const auth = (req, res, next) => {
