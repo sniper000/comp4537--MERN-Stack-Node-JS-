@@ -32,9 +32,17 @@ const schema = new mongoose.Schema({
   },
   jwt: {
     type: String,
-    unique: true,
+    required: false,
+    index: {
+      unique: true,
+      partialFilterExpression: { jwt: { $type: 'string' } },
+    },
     trim: true,
     min: 3
+  },
+  admin: {
+    type: Boolean,
+    default: false,
   },
   date: {
     type: Date,
