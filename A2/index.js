@@ -68,6 +68,8 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
           req.query["count"] = 10
         if (!req.query["after"])
           req.query["after"] = 0
+        const after = parseInt(req.query["after"], 10)
+        const count = parseInt(req.query["count"], 10)
         try {
           const docs = await pokeModel.find({})
             .sort({ id: 1 })
