@@ -13,15 +13,11 @@ dotenv.config();
 var pokeModel = null;
 
 const start = async () => {
-  // console.log("starting the server");
   await connectDB();
   const pokeSchema = await getTypes();
   pokeModel = await populatePokemons(pokeSchema);
-  // const userSchema = pokeUser;
-  // userModel = await populateUserModel(userSchema);
 
   app.listen(process.env.PORT, (err) => {
-    // console.log("app.listen started");
     if (err) console.log(err);
     else
       console.log(`Phew! Server is running on port: ${process.env.PORT}`);
@@ -81,88 +77,7 @@ class PokemonNotFoundError extends PokemonBadRequest {
 const userModel = require('./pokeUser.js')
 app.use(express.json())
 
-// const bcrypt = require('bcrypt');
-// app.post('/register', asyncWrapper(async (req, res) => {
-//   const { username, password, email, admin } = req.body
-//   const salt = await bcrypt.genSalt(10);
-//   const hashedPassword = await bcrypt.hash(password, salt);
-//   const userWithHashedPassword = { ...req.body, password: hashedPassword };
-//   const user = await userModel.create(userWithHashedPassword);
-//   res.send(user)
-// }))
-
 const jwt = require("jsonwebtoken")
-// app.post('/login', asyncWrapper(async (req, res, next) => {
-//   const { username, password } = req.body
-//   const user = await userModel.findOne({ username })
-//   if (!user) {
-//     throw new PokemonBadRequest("User not found")
-//   }
-//   const isPasswordCorrect = await bcrypt.compare(password, user.password)
-//   if (!isPasswordCorrect) {
-//     throw new PokemonBadRequest("Password is incorrect")
-//   }
-//   // console.log(user)
-
-//   // Create and assign a token
-//   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
-//   res.header('auth-token', token)
-//   res.cookie('jwtToken', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true }); // maxAge: 2 hours
-
-//   try {
-//     // const selection = { id: req.params.id }
-//     const selection = { username: user.username }
-//     // const update = req.body
-//     const update = { jwt: token }
-//     const options = {
-//       new: true,
-//       runValidators: true
-//     }
-//     const userStoreJWTToken = await userModel.findOneAndUpdate(selection, update, options)
-//     // console.log(userStoreJWTToken)
-//     if (userStoreJWTToken) {
-//       res.json({
-//         msg: "Updated Successfully",
-//         userInfo: userStoreJWTToken
-//       })
-//     } else {
-//       throw new PokemonNotFoundError('User not found in DB');
-//     }
-//   } catch (err) {
-//     next(err);
-//   }
-
-//   // res.send(userStoreJWTToken)
-// }))
-
-// app.post('/logout', asyncWrapper(async (req, res, next) => {
-//   const { username, password } = req.body
-//   const user = await userModel.findOne({ username })
-//   if (!user) {
-//     throw new PokemonBadRequest("User not found")
-//   }
-//   const isPasswordCorrect = await bcrypt.compare(password, user.password)
-//   if (!isPasswordCorrect) {
-//     throw new PokemonBadRequest("Password is incorrect")
-//   }
-
-//   // Clear the JWT token off the cookie
-//   res.clearCookie("jwToken")
-
-//   try {
-//     const userRemoveJWTTokenAndLogout = await userModel.updateOne({ username }, { $unset: { jwt: 1 } })
-//     if (userRemoveJWTTokenAndLogout) {
-//       res.json({
-//         msg: "User logged out successfully",
-//         userInfo: userRemoveJWTTokenAndLogout
-//       })
-//     } else {
-//       throw new PokemonNotFoundError('User JWT token not found in DB');
-//     }
-//   } catch (err) {
-//     next(err);
-//   }
-// }))
 
 const auth = (req, res, next) => {
   const token = req.header('auth-token')
@@ -187,9 +102,7 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   try {
     if (req.query["appid"].length > 1) {
       const appid = req.query["appid"]
-      // console.log(appid)
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
-      // console.log(userStoredJWTTokenFromDB)
       if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
         if (!req.query["count"])
           req.query["count"] = 10
@@ -272,12 +185,10 @@ app.get('/api/v1/pokemonImage/', asyncWrapper(async (req, res, next) => {
         throw new PokemonBadRequestMissingID('id is required');
       }
       const appid = req.query["appid"]
-      // console.log(appid)
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
       if (!userStoredJWTTokenFromDB) {
         throw new PokemonBadRequest("JWT token match user not found")
       }
-      // console.log(userStoredJWTTokenFromDB)
       if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
 
         // Check DB to see if user is admin and has priviledge to perform query to get pokemon image
@@ -319,12 +230,10 @@ app.post('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
     console.log(req.query["appid"].length)
     if (req.query["appid"].length > 1) {
       const appid = req.query["appid"]
-      // console.log(appid)
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
       if (!userStoredJWTTokenFromDB) {
         throw new PokemonBadRequest("JWT token match user not found")
       }
-      // console.log(userStoredJWTTokenFromDB)
       if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
 
         // Check DB to see if user is admin and has priviledge to perform query to get pokemon image
@@ -367,12 +276,10 @@ app.delete('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
         throw new PokemonBadRequestMissingID('id is required');
       }
       const appid = req.query["appid"]
-      // console.log(appid)
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
       if (!userStoredJWTTokenFromDB) {
         throw new PokemonBadRequest("JWT token match user not found")
       }
-      // console.log(userStoredJWTTokenFromDB)
       if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
 
         // Check DB to see if user is admin and has priviledge to perform query to get pokemon image
@@ -477,12 +384,10 @@ app.patch('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
         throw new PokemonBadRequestMissingID('id is required');
       }
       const appid = req.query["appid"]
-      // console.log(appid)
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
       if (!userStoredJWTTokenFromDB) {
         throw new PokemonBadRequest("JWT token match user not found")
       }
-      // console.log(userStoredJWTTokenFromDB)
       if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
 
         // Check DB to see if user is admin and has priviledge to perform query to get pokemon image

@@ -42,7 +42,6 @@ app.post('/login', asyncWrapper(async (req, res, next) => {
   if (!isPasswordCorrect) {
     throw new PokemonBadRequest("Password is incorrect")
   }
-  // console.log(user)
 
   // Create and assign a token
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
@@ -50,16 +49,13 @@ app.post('/login', asyncWrapper(async (req, res, next) => {
   res.cookie('jwtToken', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true }); // maxAge: 2 hours
 
   try {
-    // const selection = { id: req.params.id }
     const selection = { username: user.username }
-    // const update = req.body
     const update = { jwt: token }
     const options = {
       new: true,
       runValidators: true
     }
     const userStoreJWTToken = await userModel.findOneAndUpdate(selection, update, options)
-    // console.log(userStoreJWTToken)
     if (userStoreJWTToken) {
       res.json({
         msg: "Updated Successfully",
@@ -71,8 +67,6 @@ app.post('/login', asyncWrapper(async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-
-  // res.send(userStoreJWTToken)
 }))
 
 app.post('/logout', asyncWrapper(async (req, res, next) => {
