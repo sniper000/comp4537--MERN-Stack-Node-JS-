@@ -10,6 +10,15 @@ const cors = require("cors")
 const app = express()
 const dotenv = require("dotenv")
 dotenv.config();
+const {
+  PokemonBadRequest,
+  PokemonBadRequestMissingID,
+  PokemonBadRequestPostFailedToAddPokemon,
+  PokemonBadRequestSpecialValuesReturnEmptyArray,
+  PokemonNotFoundError,
+  PokemonBadRequestSpecialValueReturnNull,
+  PokemonBadRequestSpecialValueReturnEmptyStrings
+} = require("./errors.js")
 var pokeModel = null;
 
 const start = async () => {
@@ -24,55 +33,6 @@ const start = async () => {
   })
 }
 start()
-
-class PokemonBadRequest extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'PokemonBadRequest';
-  }
-}
-
-class PokemonBadRequestMissingID extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = 'PokemonBadRequestMissingID';
-  }
-}
-
-class PokemonBadRequestPostFailedToAddPokemon extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = 'PokemonBadRequestPostFailedToAddPokemon';
-  }
-}
-
-class PokemonBadRequestSpecialValuesReturnEmptyArray extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = 'PokemonBadRequestSpecialValuessReturnEmptyArray';
-  }
-}
-
-class PokemonBadRequestSpecialValueReturnNull extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = 'PokemonBadRequestSpecialValuesReturnNull';
-  }
-}
-
-class PokemonBadRequestSpecialValueReturnEmptyStrings extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = 'PokemonBadRequestSpecialValuesReturnEmptyStrings';
-  }
-}
-
-class PokemonNotFoundError extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = 'PokemonNotFoundError';
-  }
-}
 
 const userModel = require('./pokeUser.js')
 app.use(express.json())

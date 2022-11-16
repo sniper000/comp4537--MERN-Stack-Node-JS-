@@ -5,6 +5,15 @@ const userModel = require('./pokeUser.js')
 const dotenv = require("dotenv")
 dotenv.config();
 const { connectDB } = require("./connectDB.js")
+const {
+    PokemonBadRequest,
+    PokemonBadRequestMissingID,
+    PokemonBadRequestPostFailedToAddPokemon,
+    PokemonBadRequestSpecialValuesReturnEmptyArray,
+    PokemonNotFoundError,
+    PokemonBadRequestSpecialValueReturnNull,
+    PokemonBadRequestSpecialValueReturnEmptyStrings
+  } = require("./errors.js")
 
 const app = express()
 
