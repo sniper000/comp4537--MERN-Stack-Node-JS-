@@ -63,6 +63,9 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
     if (req.query["appid"].length > 1) {
       const appid = req.query["appid"]
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
+      if (userStoredJWTTokenFromDB === undefined || userStoredJWTTokenFromDB === null) {
+        throw new PokemonBadRequest('Error! JWT Token does not match JWT token in DB')
+      }
       if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
         if (!req.query["count"])
           req.query["count"] = 10
@@ -110,6 +113,9 @@ app.get('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
       // console.log(appid)
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
       // console.log(userStoredJWTTokenFromDB)
+      if (userStoredJWTTokenFromDB === undefined || userStoredJWTTokenFromDB === null) {
+        throw new PokemonBadRequest('Error! JWT Token does not match JWT token in DB')
+      }
       if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
         try {
           // const { id } = req.params
@@ -148,6 +154,9 @@ app.get('/api/v1/pokemonImage/', asyncWrapper(async (req, res, next) => {
       }
       const appid = req.query["appid"]
       const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
+      if (userStoredJWTTokenFromDB === undefined || userStoredJWTTokenFromDB === null) {
+        throw new PokemonBadRequest('Error! JWT Token does not match JWT token in DB')
+      }
       if (!userStoredJWTTokenFromDB) {
         throw new PokemonBadRequest("JWT token match user not found")
       }
