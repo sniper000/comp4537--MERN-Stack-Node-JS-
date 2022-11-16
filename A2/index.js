@@ -359,67 +359,164 @@ app.post('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
   }
 }))
 
-app.delete('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
+app.delete('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
+  console.log(req.query.id);
   try {
-    const docs = await pokeModel.findOneAndRemove({ id: req.params.id })
-    if (docs)
-      res.json({
-        msg: "Deleted Successfully"
-      })
-    else {
-      throw new PokemonNotFoundError('Pokemon not found in DB');
+    if (req.query["appid"].length > 1) {
+      if (req.query["id"].length <= 0) {
+        throw new PokemonBadRequestMissingID('id is required');
+      }
+      const appid = req.query["appid"]
+      // console.log(appid)
+      const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
+      if (!userStoredJWTTokenFromDB) {
+        throw new PokemonBadRequest("JWT token match user not found")
+      }
+      // console.log(userStoredJWTTokenFromDB)
+      if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
+
+        // Check DB to see if user is admin and has priviledge to perform query to get pokemon image
+        if (userStoredJWTTokenFromDB.admin === false || userStoredJWTTokenFromDB.admin !== true) {
+          throw new PokemonBadRequest("User's role is not authorize to access pokemon image. Admin Role Privilege is required to access pokemon image.")
+        }
+        if (userStoredJWTTokenFromDB.admin === true) {
+          try {
+            const docs = await pokeModel.findOneAndRemove({ id: req.query.id })
+            if (docs)
+              res.json({
+                msg: "Deleted Successfully"
+              })
+            else {
+              throw new PokemonNotFoundError('Pokemon not found in DB');
+            }
+            // res.json({
+            //   errMsg: "Pokemon not found"
+            // })
+          } catch (err) {
+            next(err);
+            // res.json(handleErr(err)) 
+          }
+        } else {
+          throw new PokemonBadRequest("User's role is not authorize to access pokemon image. Admin Role Privilege is required to access pokemon image.")
+        }
+      } else {
+        throw new PokemonNotFoundError('JWT token does not match JWT token in DB')
+      }
+    } else {
+      throw new PokemonNotFoundError('Missing JWT Token from user as API Key')
     }
-    // res.json({
-    //   errMsg: "Pokemon not found"
-    // })
   } catch (err) {
     next(err);
-    // res.json(handleErr(err)) 
   }
 }))
 
-app.put('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
+app.put('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
+  console.log(req.query.id);
   try {
-    const selection = { id: req.params.id }
-    const update = req.body
-    const options = {
-      new: true,
-      runValidators: true,
-      overwrite: true
-    }
-    const doc = await pokeModel.findOneAndUpdate(selection, update, options)
-    // console.log(docs);
-    if (docs.length == 0)
-      throw new PokemonNotFoundError('Pokemon not found in DB')
-    if (doc) {
-      res.json({
-        msg: "Updated Successfully",
-        pokeInfo: doc
-      })
+    if (req.query["appid"].length > 1) {
+      if (req.query["id"].length <= 0) {
+        throw new PokemonBadRequestMissingID('id is required');
+      }
+      const appid = req.query["appid"]
+      // console.log(appid)
+      const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
+      if (!userStoredJWTTokenFromDB) {
+        throw new PokemonBadRequest("JWT token match user not found")
+      }
+      // console.log(userStoredJWTTokenFromDB)
+      if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
+
+        // Check DB to see if user is admin and has priviledge to perform query to get pokemon image
+        if (userStoredJWTTokenFromDB.admin === false || userStoredJWTTokenFromDB.admin !== true) {
+          throw new PokemonBadRequest("User's role is not authorize to access pokemon image. Admin Role Privilege is required to access pokemon image.")
+        }
+        if (userStoredJWTTokenFromDB.admin === true) {
+          try {
+            const selection = { id: req.query["id"] }
+            const update = req.body
+            const options = {
+              new: true,
+              upsert: true,
+              runValidators: true,
+              overwrite: true
+            }
+            const doc = await pokeModel.findOneAndUpdate(selection, update, options)
+            console.log(doc)
+            if (doc.length == 0)
+              throw new PokemonNotFoundError('Pokemon not found in DB')
+            if (doc) {
+              res.json({
+                msg: "Updated Successfully",
+                pokeInfo: doc
+              })
+            } else {
+              throw new PokemonNotFoundError('Pokemon not found in DB');
+            }
+          } catch (err) {
+            next(err);
+          }
+        } else {
+          throw new PokemonBadRequest("User's role is not authorize to access pokemon image. Admin Role Privilege is required to access pokemon image.")
+        }
+      } else {
+        throw new PokemonNotFoundError('JWT token does not match JWT token in DB')
+      }
     } else {
-      throw new PokemonNotFoundError('Pokemon not found in DB');
+      throw new PokemonNotFoundError('Missing JWT Token from user as API Key')
     }
   } catch (err) {
     next(err);
   }
 }))
 
-app.patch('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
+app.patch('/api/v1/pokemon/', asyncWrapper(async (req, res, next) => {
+  console.log(req.query.id);
   try {
-    const selection = { id: req.params.id }
-    const update = req.body
-    const options = {
-      new: true,
-      runValidators: true
-    }
-    const doc = await pokeModel.findOneAndUpdate(selection, update, options)
-    if (doc) {
-      res.json({
-        msg: "Updated Successfully",
-        pokeInfo: doc
-      })
+    if (req.query["appid"].length > 1) {
+      if (req.query["id"].length <= 0) {
+        throw new PokemonBadRequestMissingID('id is required');
+      }
+      const appid = req.query["appid"]
+      // console.log(appid)
+      const userStoredJWTTokenFromDB = await userModel.findOne({ jwt: appid })
+      if (!userStoredJWTTokenFromDB) {
+        throw new PokemonBadRequest("JWT token match user not found")
+      }
+      // console.log(userStoredJWTTokenFromDB)
+      if (userStoredJWTTokenFromDB.jwt === req.query["appid"]) {
+
+        // Check DB to see if user is admin and has priviledge to perform query to get pokemon image
+        if (userStoredJWTTokenFromDB.admin === false || userStoredJWTTokenFromDB.admin !== true) {
+          throw new PokemonBadRequest("User's role is not authorize to access pokemon image. Admin Role Privilege is required to access pokemon image.")
+        }
+        if (userStoredJWTTokenFromDB.admin === true) {
+          try {
+            const selection = { id: req.query.id }
+            const update = req.body
+            const options = {
+              new: true,
+              runValidators: true
+            }
+            const doc = await pokeModel.findOneAndUpdate(selection, update, options)
+            if (doc) {
+              res.json({
+                msg: "Updated Successfully",
+                pokeInfo: doc
+              })
+            } else {
+              throw new PokemonNotFoundError('Pokemon ont found in DB');
+            }
+          } catch (err) {
+            next(err);
+          }
+        } else {
+          throw new PokemonBadRequest("User's role is not authorize to access pokemon image. Admin Role Privilege is required to access pokemon image.")
+        }
+      } else {
+        throw new PokemonNotFoundError('JWT token does not match JWT token in DB')
+      }
     } else {
-      throw new PokemonNotFoundError('Pokemon ont found in DB');
+      throw new PokemonNotFoundError('Missing JWT Token from user as API Key')
     }
   } catch (err) {
     next(err);
