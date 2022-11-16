@@ -81,88 +81,88 @@ class PokemonNotFoundError extends PokemonBadRequest {
 const userModel = require('./pokeUser.js')
 app.use(express.json())
 
-const bcrypt = require('bcrypt');
-app.post('/register', asyncWrapper(async (req, res) => {
-  const { username, password, email, admin } = req.body
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-  const userWithHashedPassword = { ...req.body, password: hashedPassword };
-  const user = await userModel.create(userWithHashedPassword);
-  res.send(user)
-}))
+// const bcrypt = require('bcrypt');
+// app.post('/register', asyncWrapper(async (req, res) => {
+//   const { username, password, email, admin } = req.body
+//   const salt = await bcrypt.genSalt(10);
+//   const hashedPassword = await bcrypt.hash(password, salt);
+//   const userWithHashedPassword = { ...req.body, password: hashedPassword };
+//   const user = await userModel.create(userWithHashedPassword);
+//   res.send(user)
+// }))
 
 const jwt = require("jsonwebtoken")
-app.post('/login', asyncWrapper(async (req, res, next) => {
-  const { username, password } = req.body
-  const user = await userModel.findOne({ username })
-  if (!user) {
-    throw new PokemonBadRequest("User not found")
-  }
-  const isPasswordCorrect = await bcrypt.compare(password, user.password)
-  if (!isPasswordCorrect) {
-    throw new PokemonBadRequest("Password is incorrect")
-  }
-  // console.log(user)
+// app.post('/login', asyncWrapper(async (req, res, next) => {
+//   const { username, password } = req.body
+//   const user = await userModel.findOne({ username })
+//   if (!user) {
+//     throw new PokemonBadRequest("User not found")
+//   }
+//   const isPasswordCorrect = await bcrypt.compare(password, user.password)
+//   if (!isPasswordCorrect) {
+//     throw new PokemonBadRequest("Password is incorrect")
+//   }
+//   // console.log(user)
 
-  // Create and assign a token
-  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
-  res.header('auth-token', token)
-  res.cookie('jwtToken', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true }); // maxAge: 2 hours
+//   // Create and assign a token
+//   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
+//   res.header('auth-token', token)
+//   res.cookie('jwtToken', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true }); // maxAge: 2 hours
 
-  try {
-    // const selection = { id: req.params.id }
-    const selection = { username: user.username }
-    // const update = req.body
-    const update = { jwt: token }
-    const options = {
-      new: true,
-      runValidators: true
-    }
-    const userStoreJWTToken = await userModel.findOneAndUpdate(selection, update, options)
-    // console.log(userStoreJWTToken)
-    if (userStoreJWTToken) {
-      res.json({
-        msg: "Updated Successfully",
-        userInfo: userStoreJWTToken
-      })
-    } else {
-      throw new PokemonNotFoundError('User not found in DB');
-    }
-  } catch (err) {
-    next(err);
-  }
+//   try {
+//     // const selection = { id: req.params.id }
+//     const selection = { username: user.username }
+//     // const update = req.body
+//     const update = { jwt: token }
+//     const options = {
+//       new: true,
+//       runValidators: true
+//     }
+//     const userStoreJWTToken = await userModel.findOneAndUpdate(selection, update, options)
+//     // console.log(userStoreJWTToken)
+//     if (userStoreJWTToken) {
+//       res.json({
+//         msg: "Updated Successfully",
+//         userInfo: userStoreJWTToken
+//       })
+//     } else {
+//       throw new PokemonNotFoundError('User not found in DB');
+//     }
+//   } catch (err) {
+//     next(err);
+//   }
 
-  // res.send(userStoreJWTToken)
-}))
+//   // res.send(userStoreJWTToken)
+// }))
 
-app.post('/logout', asyncWrapper(async (req, res, next) => {
-  const { username, password } = req.body
-  const user = await userModel.findOne({ username })
-  if (!user) {
-    throw new PokemonBadRequest("User not found")
-  }
-  const isPasswordCorrect = await bcrypt.compare(password, user.password)
-  if (!isPasswordCorrect) {
-    throw new PokemonBadRequest("Password is incorrect")
-  }
+// app.post('/logout', asyncWrapper(async (req, res, next) => {
+//   const { username, password } = req.body
+//   const user = await userModel.findOne({ username })
+//   if (!user) {
+//     throw new PokemonBadRequest("User not found")
+//   }
+//   const isPasswordCorrect = await bcrypt.compare(password, user.password)
+//   if (!isPasswordCorrect) {
+//     throw new PokemonBadRequest("Password is incorrect")
+//   }
 
-  // Clear the JWT token off the cookie
-  res.clearCookie("jwToken")
+//   // Clear the JWT token off the cookie
+//   res.clearCookie("jwToken")
 
-  try {
-    const userRemoveJWTTokenAndLogout = await userModel.updateOne({ username }, { $unset: { jwt: 1 } })
-    if (userRemoveJWTTokenAndLogout) {
-      res.json({
-        msg: "User logged out successfully",
-        userInfo: userRemoveJWTTokenAndLogout
-      })
-    } else {
-      throw new PokemonNotFoundError('User JWT token not found in DB');
-    }
-  } catch (err) {
-    next(err);
-  }
-}))
+//   try {
+//     const userRemoveJWTTokenAndLogout = await userModel.updateOne({ username }, { $unset: { jwt: 1 } })
+//     if (userRemoveJWTTokenAndLogout) {
+//       res.json({
+//         msg: "User logged out successfully",
+//         userInfo: userRemoveJWTTokenAndLogout
+//       })
+//     } else {
+//       throw new PokemonNotFoundError('User JWT token not found in DB');
+//     }
+//   } catch (err) {
+//     next(err);
+//   }
+// }))
 
 const auth = (req, res, next) => {
   const token = req.header('auth-token')
@@ -197,9 +197,9 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
           req.query["after"] = 0
         try {
           const docs = await pokeModel.find({})
-            .sort({ "id": 1 })
-            .skip(req.query["after"])
-            .limit(req.query["count"])
+            .sort({ id: 1 })
+            .skip(after)
+            .limit(count)
           if (docs == null)
             throw new PokemonBadRequestSpecialValueReturnNull('Error, request return null')
           if (docs == [])
@@ -286,20 +286,20 @@ app.get('/api/v1/pokemonImage/', asyncWrapper(async (req, res, next) => {
         }
         if (userStoredJWTTokenFromDB.admin === true) {
           await pokeModel.find({ id: `${req.query.id}` })
-          .then(doc => {
-            console.log(doc)
-            var idLength = req.query.id.toString().length;
-            if (idLength === 3) { req.query.id = req.query.id }
-            else if (idLength < 3) {
-              req.query.id = "0".repeat(3 - idLength) + req.query.id
-            }
-            var pokemonImage = { "url": `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${req.query.id}.png` }
-            res.json(pokemonImage)
-          })
-          .catch(err => {
-            console.error(err)
-            res.json({ msg: "db reading .. err.  Check with server devs" })
-          })
+            .then(doc => {
+              console.log(doc)
+              var idLength = req.query.id.toString().length;
+              if (idLength === 3) { req.query.id = req.query.id }
+              else if (idLength < 3) {
+                req.query.id = "0".repeat(3 - idLength) + req.query.id
+              }
+              var pokemonImage = { "url": `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${req.query.id}.png` }
+              res.json(pokemonImage)
+            })
+            .catch(err => {
+              console.error(err)
+              res.json({ msg: "db reading .. err.  Check with server devs" })
+            })
         } else {
           throw new PokemonBadRequest("User's role is not authorize to access pokemon image. Admin Role Privilege is required to access pokemon image.")
         }
