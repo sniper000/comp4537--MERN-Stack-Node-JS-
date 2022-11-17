@@ -78,6 +78,7 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
             .sort({ id: 1 })
             .skip(after)
             .limit(count)
+          console.log(docs)
           if (docs == null)
             throw new PokemonBadRequestSpecialValueReturnNull('Error, request return null')
           if (docs == [])
