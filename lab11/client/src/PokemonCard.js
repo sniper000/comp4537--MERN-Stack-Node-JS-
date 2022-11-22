@@ -1,8 +1,7 @@
-import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
 function PokemonCard(props) {
-  const { pokemonProp, pokemonImage } = props;
+  const { pokemonProp } = props;
   const getThreeDigitId = (id) => {
     if (id < 10) return `00${id}`;
     if (id < 100) return `0${id}`;

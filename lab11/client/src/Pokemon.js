@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import PokemonCard from "./PokemonCard";
 
 function Pokemon(props) {
-  const { pokemonProp, search } = props;
-  const [pokemonImage, setPokemonImage] = useState([]);
+  const { pokemonProp } = props;
+  const [pokemonImage] = useState([]);
 
   //   console.log(search);
 
