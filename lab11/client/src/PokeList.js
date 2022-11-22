@@ -9,7 +9,7 @@ import MultiRangeSlider from "./Components/MultiRangeSlider";
 function PokeList() {
   const [pokemon, setPokemon] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pokemonsPerPage, setPokemonsPerPage] = useState(10);
+  const [pokemonsPerPage] = useState(10);
   const [min, setMin] = useState(0);
   const [max, setMax] = useState(0);
   const [minSpecAttack, setMinSpecAttack] = useState(0);
