@@ -45,7 +45,7 @@ function PokeList() {
 
   useEffect(() => {
     fetch(
-      "http://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json"
+      "https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json"
     )
       .then((response) => response.json())
       .then((data) => setPokemon(data))
