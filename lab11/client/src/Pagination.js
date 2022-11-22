@@ -28,22 +28,19 @@ const Pagination = ({
     <nav>
       <ul className="pagination">
         <li className="page-item">
-          {/* <a onClick={previous} href="!#" className="page-link"> */}
-          <a onClick={previous} className="page-link">
+          <a onClick={previous} href="!#" className="page-link">
             prev
           </a>
         </li>
         {pageNumbers.map((number) => (
           <li key={number} className="page-item">
-            {/* <a onClick={() => paginate(number)} href="!#" className="page-link"> */}
-            <a onClick={() => paginate(number)} className="page-link">
+            <a onClick={() => paginate(number)} href="!#" className="page-link">
               {number}
             </a>
           </li>
         ))}
         <li className="page-item">
-          {/* <a onClick={next} href="!#" className="page-link"> */}
-          <a onClick={next} className="page-link">
+          <a onClick={next} href="!#" className="page-link">
             next
           </a>
         </li>
