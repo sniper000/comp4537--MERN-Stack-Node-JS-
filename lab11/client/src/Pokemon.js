@@ -4,14 +4,15 @@ import PokemonCard from "./PokemonCard";
 function Pokemon(props) {
   const { pokemonProp, search } = props;
   const [pokemonImage, setPokemonImage] = useState([]);
+
   //   console.log(search);
 
-  useEffect(() => {
-    fetch(`http://localhost:5500/api/v1/pokemonImage/${pokemonProp.id}`)
-      .then((response) => response.json())
-      .then((data) => setPokemonImage(data))
-      .catch((error) => console.error(error));
-  }, [][0]);
+  //   useEffect(() => {
+  //     fetch(`http://localhost:5500/api/v1/pokemonImage/${pokemonProp.id}`)
+  //       .then((response) => response.json())
+  //       .then((data) => setPokemonImage(data))
+  //       .catch((error) => console.error(error));
+  //   }, [][0]);
 
   return (
     <div>

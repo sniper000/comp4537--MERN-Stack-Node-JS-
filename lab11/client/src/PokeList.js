@@ -4,11 +4,16 @@ import Pokemon from "./Pokemon";
 import Pagination from "./Pagination";
 import BrandExample from "./BrandExample";
 import SearchBar from "./Components/SearchBar";
+import MultiRangeSlider from "./Components/MultiRangeSlider";
 
 function PokeList() {
   const [pokemon, setPokemon] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pokemonsPerPage, setPokemonsPerPage] = useState(10);
+  const [min, setMin] = useState(0);
+  const [max, setMax] = useState(0);
+  const [minSpecAttack, setMinSpecAttack] = useState(0);
+  const [maxSpecAttack, setMaxSpecAttack] = useState(0);
   const [search, setSearch] = useState({
     text: "",
     normalType: false,
@@ -31,8 +36,17 @@ function PokeList() {
     fairyType: false,
   });
 
+  // useEffect(() => {
+  //   fetch("http://localhost:5500/api/v1/pokemons")
+  //     .then((response) => response.json())
+  //     .then((data) => setPokemon(data))
+  //     .catch((error) => console.error(error));
+  // }, []);
+
   useEffect(() => {
-    fetch("http://localhost:5500/api/v1/pokemons")
+    fetch(
+      "http://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json"
+    )
       .then((response) => response.json())
       .then((data) => setPokemon(data))
       .catch((error) => console.error(error));
@@ -42,12 +56,14 @@ function PokeList() {
   const indexOfFirstPokemon = indexOfLastPokemon - pokemonsPerPage;
 
   console.log("search " + typeof search.text + " " + search.text);
-
+  // console.log(pokemon);
   //Filter by Type
   const currentPokemon = pokemon
     .filter((pokemonFiltered) =>
       search.text.length > 0
-        ? pokemonFiltered.name.english.includes(search.text)
+        ? pokemonFiltered.name.english
+            .toLowerCase()
+            .includes(search.text.toLowerCase())
         : pokemonFiltered
     )
     .filter((pokemonFiltered) =>
@@ -140,6 +156,22 @@ function PokeList() {
         ? pokemonFiltered.type.includes("Fairy") === search.fairyType
         : pokemonFiltered
     )
+    .filter((pokemonFiltered) =>
+      min > 0 ? pokemonFiltered.base.HP >= min : pokemonFiltered
+    )
+    .filter((pokemonFiltered) =>
+      max > 0 ? pokemonFiltered.base.HP <= max : pokemonFiltered
+    )
+    .filter((pokemonFiltered) =>
+      minSpecAttack > 0
+        ? pokemonFiltered.base["Sp. Attack"] >= minSpecAttack
+        : pokemonFiltered
+    )
+    .filter((pokemonFiltered) =>
+      maxSpecAttack > 0
+        ? pokemonFiltered.base["Sp. Defense"] <= maxSpecAttack
+        : pokemonFiltered
+    )
     .slice(indexOfFirstPokemon, indexOfLastPokemon);
   const numberOfPages = Math.ceil(pokemon.length / pokemonsPerPage);
 
@@ -147,6 +179,8 @@ function PokeList() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   console.log(search);
+  console.log(min);
+  console.log(max);
 
   return (
     <>
@@ -156,6 +190,28 @@ function PokeList() {
         </div>
         <br />
         <SearchBar setSearch={setSearch} search={search} />
+        <div className="slider">
+          <p>HP</p>
+          <MultiRangeSlider
+            min={0}
+            max={256}
+            onChange={({ min, max }) => {
+              console.log(`min = ${min}, max = ${max}`);
+              setMin(min);
+              setMax(max);
+            }}
+          />
+          <p>Special Attack</p>
+          <MultiRangeSlider
+            min={0}
+            max={174}
+            onChange={({ min, max }) => {
+              console.log(`min = ${min}, max = ${max}`);
+              setMinSpecAttack(min);
+              setMaxSpecAttack(max);
+            }}
+          />
+        </div>
         <br />
         <div>
           <Grid container spacing={4}>
