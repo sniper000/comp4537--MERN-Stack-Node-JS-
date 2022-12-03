@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import Report from "./Report";
 
-function Dashboard() {
+function Dashboard({ accessToken, setAccessToken, refreshToken }) {
   return (
     <>
       <p>Admin Dashboard Table</p>
@@ -25,9 +25,39 @@ function Dashboard() {
       </nav>
 
       <Routes>
-        <Route path="/report/1" element={<Report id={1} />} />
-        <Route path="/report/2" element={<Report id={2} />} />
-        <Route path="/report/3" element={<Report id={3} />} />
+        <Route
+          path="/report/1"
+          element={
+            <Report
+              id={1}
+              accessToken={accessToken}
+              setAccessToken={setAccessToken}
+              refreshToken={refreshToken}
+            />
+          }
+        />
+        <Route
+          path="/report/2"
+          element={
+            <Report
+              id={2}
+              accessToken={accessToken}
+              setAccessToken={setAccessToken}
+              refreshToken={refreshToken}
+            />
+          }
+        />
+        <Route
+          path="/report/3"
+          element={
+            <Report
+              id={3}
+              accessToken={accessToken}
+              setAccessToken={setAccessToken}
+              refreshToken={refreshToken}
+            />
+          }
+        />
       </Routes>
     </>
   );

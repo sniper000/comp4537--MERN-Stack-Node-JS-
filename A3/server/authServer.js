@@ -31,8 +31,13 @@ const start = async () => {
 };
 start();
 
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    exposedHeaders: ["auth-token-access", "auth-token-refresh"],
+  })
+);
 
 const bcrypt = require("bcrypt");
 app.post(
@@ -48,6 +53,43 @@ app.post(
 );
 
 const jwt = require("jsonwebtoken");
+let refreshTokens = []; // replace with a db
+app.post(
+  "/requestNewAccessToken",
+  asyncWrapper(async (req, res) => {
+    // console.log(req.headers);
+    const refreshToken = req.header("auth-token-refresh");
+    if (!refreshToken) {
+      throw new PokemonAuthError("No Token: Please provide a token.");
+    }
+    if (!refreshTokens.includes(refreshToken)) {
+      // replaced a db access
+      console.log("token: ", refreshToken);
+      console.log("refreshTokens", refreshTokens);
+      throw new PokemonAuthError(
+        "Invalid Token: Please provide a valid token."
+      );
+    }
+    try {
+      const payload = await jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      const accessToken = jwt.sign(
+        { user: payload.user },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "10s" }
+      );
+      res.header("auth-token-access", accessToken);
+      res.send("All good!");
+    } catch (error) {
+      throw new PokemonAuthError(
+        "Invalid Token: Please provide a valid token."
+      );
+    }
+  })
+);
+
 app.post(
   "/login",
   asyncWrapper(async (req, res, next) => {
@@ -62,36 +104,50 @@ app.post(
     }
 
     // Create and assign a token
-    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-    res.header("auth-token", token);
-    res.cookie("jwtToken", token, {
-      maxAge: 2 * 60 * 60 * 1000,
-      httpOnly: true,
-    }); // maxAge: 2 hours
+    // const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+    // res.header("auth-token-acess", token);
+    // res.cookie("jwtToken", token, {
+    //   maxAge: 2 * 60 * 60 * 1000,
+    //   httpOnly: true,
+    // }); // maxAge: 2 hours
 
-    try {
-      const selection = { username: user.username };
-      const update = { jwt: token };
-      const options = {
-        new: true,
-        runValidators: true,
-      };
-      const userStoreJWTToken = await userModel.findOneAndUpdate(
-        selection,
-        update,
-        options
-      );
-      if (userStoreJWTToken) {
-        res.json({
-          msg: "Updated Successfully",
-          userInfo: userStoreJWTToken,
-        });
-      } else {
-        throw new PokemonNotFoundError("User not found in DB");
-      }
-    } catch (err) {
-      next(err);
-    }
+    const accessToken = jwt.sign(
+      { user: user },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "10s" }
+    );
+    const refreshToken = jwt.sign(
+      { user: user },
+      process.env.REFRESH_TOKEN_SECRET
+    );
+    refreshTokens.push(refreshToken);
+
+    res.header("auth-token-access", accessToken);
+    res.header("auth-token-refresh", refreshToken);
+    res.send(user);
+    // try {
+    //   const selection = { username: user.username };
+    //   const update = { jwt: token };
+    //   const options = {
+    //     new: true,
+    //     runValidators: true,
+    //   };
+    //   const userStoreJWTToken = await userModel.findOneAndUpdate(
+    //     selection,
+    //     update,
+    //     options
+    //   );
+    //   if (userStoreJWTToken) {
+    //     res.json({
+    //       msg: "Updated Successfully",
+    //       userInfo: userStoreJWTToken,
+    //     });
+    //   } else {
+    //     throw new PokemonNotFoundError("User not found in DB");
+    //   }
+    // } catch (err) {
+    //   next(err);
+    // }
   })
 );
 

@@ -69,7 +69,7 @@ function ReportGraph({ report }) {
 
   return (
     <div>
-      <h1>Report Graph {report}</h1>
+      <h3>Report Graph {report}</h3>
       {report === 1 && <p>Unique API users over a period of time</p>}
       {report === 2 && <p>Top API users over period of time</p>}
       {report === 3 && <p>Top users for each Endpoint</p>}

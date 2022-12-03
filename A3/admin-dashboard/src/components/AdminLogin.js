@@ -5,6 +5,8 @@ import Dashboard from "./Dashboard";
 function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
   const [user, setUser] = useState({});
 
   const handleSubmit = async (e) => {
@@ -17,11 +19,15 @@ function AdminLogin() {
         password,
       });
       console.log(res.data);
-      console.log("msg: " + res.data.msg);
-      console.log("user: " + res.data.userInfo.username);
-      console.log("password: " + res.data.userInfo.password);
-      setUser(res.data.userInfo);
-      console.log("user: " + user);
+      console.log("username: " + res.data.username);
+      console.log("password: " + res.data.password);
+      console.log("accessToken: " + res.headers["auth-token-access"]);
+      // console.log("msg: " + res.data.msg);
+      // console.log("user: " + res.data.userInfo.username);
+      // console.log("password: " + res.data.userInfo.password);
+      setUser(res.data);
+      setAccessToken(res.headers["auth-token-access"]);
+      setRefreshToken(res.headers["auth-token-refresh"]);
     } catch (err) {
       console.log(err);
     }
@@ -32,7 +38,11 @@ function AdminLogin() {
       {user?.username ? (
         <>
           <h3>Welcome {user.username}</h3>
-          <Dashboard />
+          <Dashboard
+            accessToken={accessToken}
+            setAccessToken={setAccessToken}
+            refreshToken={refreshToken}
+          />
         </>
       ) : (
         <>
