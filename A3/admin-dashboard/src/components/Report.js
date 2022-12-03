@@ -16,7 +16,9 @@ function Report({ id, accessToken, setAccessToken, refreshToken }) {
             },
           }
         );
-        console.log("logging res.data" + res.data);
+        console.log("logging res.data: " + res.data.text);
+        console.log("logging res.data: " + res.data.route);
+        // setReportTable(res.data);
         // console.log(res.data);
         // setReportTable(res.data);
       } catch (err) {
@@ -30,7 +32,7 @@ function Report({ id, accessToken, setAccessToken, refreshToken }) {
   const refreshAccessToken = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5500/requestNewAccessToken",
+        "http://localhost:6020/requestNewAccessToken",
         {},
         {
           headers: {
