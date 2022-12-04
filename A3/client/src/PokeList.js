@@ -216,18 +216,13 @@ function PokeList() {
         <br />
         <div>
           <Grid container spacing={4}>
-            {currentPokemon
-              // .filter(
-              //   (pokemonFiltered) =>
-              //     pokemonFiltered.type.includes("Fire") && search.fireType
-              // )
-              .map((poke) => {
-                return (
-                  <Grid item xs={4} sm={4}>
-                    <Pokemon pokemonProp={poke} search={search} />
-                  </Grid>
-                );
-              })}
+            {currentPokemon.map((poke) => {
+              return (
+                <Grid item xs={4} sm={4}>
+                  <Pokemon pokemonProp={poke} search={search} />
+                </Grid>
+              );
+            })}
           </Grid>
         </div>
         <br />

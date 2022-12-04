@@ -56,10 +56,10 @@ function ErrorCard() {
                 <Badge bg="danger">500</Badge>{" "}
               </Col>
               <Col>
-                <p style={{ color: "lawngreen" }}>50 ms</p>
+                <p style={{ color: "lawngreen" }}>304 ms</p>
               </Col>
               <Col>
-                <p>Dec 3 4:56:34 PM</p>
+                <p>Dec 2 11:02:23 PM</p>
               </Col>
             </Row>
           </Container>
@@ -88,7 +88,7 @@ function ErrorCard() {
                 <p style={{ color: "lawngreen" }}>50 ms</p>
               </Col>
               <Col>
-                <p>Dec 3 4:56:34 PM</p>
+                <p>Dec 2 8:32:42 AM</p>
               </Col>
             </Row>
           </Container>
@@ -119,7 +119,7 @@ function ErrorCard() {
                 <p style={{ color: "lawngreen" }}>50 ms</p>
               </Col>
               <Col>
-                <p>Dec 3 4:56:34 PM</p>
+                <p>Dec 1 9:23:14 PM</p>
               </Col>
             </Row>
           </Container>
@@ -150,7 +150,7 @@ function ErrorCard() {
                 <p style={{ color: "lawngreen" }}>50 ms</p>
               </Col>
               <Col>
-                <p>Dec 3 4:56:34 PM</p>
+                <p>Dec 1 9:23:29 PM</p>
               </Col>
             </Row>
           </Container>
