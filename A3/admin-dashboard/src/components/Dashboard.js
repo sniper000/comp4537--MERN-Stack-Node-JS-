@@ -27,6 +27,9 @@ function Dashboard({ accessToken, setAccessToken, refreshToken }) {
           <li>
             <Link to="/report/5">Report 5 - Recent 4xx/5xx Errors</Link>
           </li>
+          <li>
+            <Link to="/report/6">Dashboard Overview</Link>
+          </li>
         </ul>
       </nav>
 
@@ -58,6 +61,39 @@ function Dashboard({ accessToken, setAccessToken, refreshToken }) {
           element={
             <Report
               id={3}
+              accessToken={accessToken}
+              setAccessToken={setAccessToken}
+              refreshToken={refreshToken}
+            />
+          }
+        />
+        <Route
+          path="/report/4"
+          element={
+            <Report
+              id={4}
+              accessToken={accessToken}
+              setAccessToken={setAccessToken}
+              refreshToken={refreshToken}
+            />
+          }
+        />
+        <Route
+          path="/report/5"
+          element={
+            <Report
+              id={5}
+              accessToken={accessToken}
+              setAccessToken={setAccessToken}
+              refreshToken={refreshToken}
+            />
+          }
+        />
+        <Route
+          path="/report/6"
+          element={
+            <Report
+              id={6}
               accessToken={accessToken}
               setAccessToken={setAccessToken}
               refreshToken={refreshToken}

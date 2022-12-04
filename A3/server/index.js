@@ -556,6 +556,24 @@ app.get("/report", (req, res) => {
       route: `Table ${req.query.id}`,
     });
   }
+  if (req.query["id"] === "4") {
+    res.json({
+      text: "admin report requested placeholder",
+      route: `Table ${req.query.id}`,
+    });
+  }
+  if (req.query["id"] === "5") {
+    res.json({
+      text: "admin report requested placeholder",
+      route: `Table ${req.query.id}`,
+    });
+  }
+  if (req.query["id"] === "6") {
+    res.json({
+      text: "admin report requested placeholder",
+      route: `Table ${req.query.id}`,
+    });
+  }
   // res.send(`Table ${req.query.id}`);
 });
 
